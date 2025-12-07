@@ -17,17 +17,7 @@ authors:
 bibliography: 2026-04-27-indic-tokenization.bib
 
 toc:
-  - name: Equations
-  - name: Images and Figures
-    subsections:
-      - name: Interactive Figures
-  - name: Citations
-  - name: Footnotes
-  - name: Code Blocks
-  - name: Diagrams
-  - name: Tweets
-  - name: Layouts
-  - name: Other Typography?
+  - name: Introduction
 
 _styles: >
   .fake-img {
