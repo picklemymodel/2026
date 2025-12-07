@@ -1,7 +1,7 @@
 ---
 layout: distill
 title: indic tokenization
-description: to be updated
+description: Tokenizers trained on English-dominant data often produce unusually high token counts for Indic languages. This               "tokenizer fertility" increases sequence lengths, raises compute costs, and can hurt downstream performance,                   even when the underlying model is strong. In this post, we examine how fertility varies across major Indic                    scripts and how it affects language modeling quality, inference efficiency, and instruction-following behavior.
 date: 2026-04-27
 future: true
 htmlwidgets: true
