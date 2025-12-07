@@ -1,9 +1,90 @@
-@misc{hagos2024recentadvancesgenerativeai,
-      title={Recent Advances in Generative AI and Large Language Models: Current Status, Challenges, and Perspectives}, 
-      author={Desta Haileselassie Hagos and Rick Battle and Danda B. Rawat},
+@article{hagos2024recentadvancesgenerativeai,
+  title={Recent Advances in Generative AI and Large Language Models: Current Status, Challenges, and Perspectives}, 
+  author={Desta Haileselassie Hagos and Rick Battle and Danda B. Rawat},
+  journal={arXiv preprint, arXiv:2407.14962},
+  year={2024},
+  url={https://arxiv.org/abs/2407.14962}, 
+}
+@inproceedings{rust-etal-2021-good,
+    title = "How Good is Your Tokenizer? On the Monolingual Performance of Multilingual Language Models",
+    author = "Rust, Phillip  and
+      Pfeiffer, Jonas  and
+      Vuli{\'c}, Ivan  and
+      Ruder, Sebastian  and
+      Gurevych, Iryna",
+    editor = "Zong, Chengqing  and
+      Xia, Fei  and
+      Li, Wenjie  and
+      Navigli, Roberto",
+    booktitle = "Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers)",
+    month = aug,
+    year = "2021",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2021.acl-long.243/",
+    doi = "10.18653/v1/2021.acl-long.243",
+    pages = "3118--3135",
+    abstract = "In this work, we provide a systematic and comprehensive empirical comparison of pretrained multilingual language models versus their monolingual counterparts with regard to their monolingual task performance. We study a set of nine typologically diverse languages with readily available pretrained monolingual models on a set of five diverse monolingual downstream tasks. We first aim to establish, via fair and controlled comparisons, if a gap between the multilingual and the corresponding monolingual representation of that language exists, and subsequently investigate the reason for any performance difference. To disentangle conflating factors, we train new monolingual models on the same data, with monolingually and multilingually trained tokenizers. We find that while the pretraining data size is an important factor, a designated monolingual tokenizer plays an equally important role in the downstream performance. Our results show that languages that are adequately represented in the multilingual model{'}s vocabulary exhibit negligible performance decreases over their monolingual counterparts. We further find that replacing the original multilingual tokenizer with the specialized monolingual tokenizer improves the downstream performance of the multilingual model for almost every task and language."
+}
+@article{tamang2024evaluatingtokenizerperformancelarge,
+      title={Evaluating Tokenizer Performance of Large Language Models Across Official Indian Languages}, 
+      author={S. Tamang and D. J. Bora},
+      journal={arXiv preprint, arXiv:2411.12240},
       year={2024},
-      eprint={2407.14962},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2407.14962}, 
+      url={https://arxiv.org/abs/2411.12240}, 
+}
+@inproceedings{ali-etal-2024-tokenizer,
+    title = "Tokenizer Choice For {LLM} Training: Negligible or Crucial?",
+    author = {Ali, Mehdi  and
+      Fromm, Michael  and
+      Thellmann, Klaudia  and
+      Rutmann, Richard  and
+      L{\"u}bbering, Max  and
+      Leveling, Johannes  and
+      Klug, Katrin  and
+      Ebert, Jan  and
+      Doll, Niclas  and
+      Buschhoff, Jasper  and
+      Jain, Charvi  and
+      Weber, Alexander  and
+      Jurkschat, Lena  and
+      Abdelwahab, Hammam  and
+      John, Chelsea  and
+      Ortiz Suarez, Pedro  and
+      Ostendorff, Malte  and
+      Weinbach, Samuel  and
+      Sifa, Rafet  and
+      Kesselheim, Stefan  and
+      Flores-Herr, Nicolas},
+    editor = "Duh, Kevin  and
+      Gomez, Helena  and
+      Bethard, Steven",
+    booktitle = "Findings of the Association for Computational Linguistics: NAACL 2024",
+    month = jun,
+    year = "2024",
+    address = "Mexico City, Mexico",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.findings-naacl.247/",
+    doi = "10.18653/v1/2024.findings-naacl.247",
+    pages = "3907--3924",
+    abstract = "The recent success of large language models (LLMs) has been predominantly driven by curating the training dataset composition, scaling of model architectures and dataset sizes and advancements in pretraining objectives, leaving tokenizer influence as a blind spot.Shedding light on this underexplored area, we conduct a comprehensive study on the influence of tokenizer choice on LLM downstream performance by training 24 mono- and multilingual LLMs at a 2.6B parameter scale, ablating different tokenizer algorithms and parameterizations. Our studies highlight that the tokenizer choice can significantly impact the model{'}s downstream performance and training costs. In particular, we find that the common tokenizer evaluation metrics fertility and parity are not always predictive of model downstream performance, rendering these metrics a questionable proxy for the model{'}s downstream performance. Furthermore, we show that multilingual tokenizers trained on the five most frequent European languages require vocabulary size increases of factor three in comparison to English. While English-centric tokenizers have been applied to the training of multi-lingual LLMs in the past, we find that this approach results in a severe downstream performance degradation and additional training costs of up to 68{\%}, due to an inefficient tokenization vocabulary."
+}
+@inproceedings{bhattacharyya-bhattacharya-2025-leveraging,
+    title = "Leveraging {LLM}s for {B}angla Grammar Error Correction: Error Categorization, Synthetic Data, and Model Evaluation",
+    author = "Bhattacharyya, Pramit  and
+      Bhattacharya, Arnab",
+    editor = "Che, Wanxiang  and
+      Nabende, Joyce  and
+      Shutova, Ekaterina  and
+      Pilehvar, Mohammad Taher",
+    booktitle = "Findings of the Association for Computational Linguistics: ACL 2025",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.findings-acl.431/",
+    doi = "10.18653/v1/2025.findings-acl.431",
+    pages = "8220--8239",
+    ISBN = "979-8-89176-256-5",
+    abstract = "Large Language Models (LLMs) perform exceedingly well in Natural Language Understanding (NLU) tasks for many languages including English. However, despite being the fifth most-spoken language globally, Grammatical Error Correction (GEC) in Bangla remains underdeveloped. In this work, we investigate how LLMs can be leveraged for improving Bangla GEC. For that, we first do an extensive categorization of 12 error classes in Bangla, and take a survey of native Bangla speakers to collect real-world errors. We next devise a rule-based noise injection method to create grammatically incorrect sentences corresponding to correct ones. The Vaiy{\={a}}karaṇa dataset, thus created, consists of 5,67,422 sentences of which 2,27,119 are erroneous. This dataset is then used to instruction-tune LLMs for the task of GEC in Bangla. Evaluations show that instruction-tuning with Vaiy{\={a}}karaṇa improves GEC performance of LLMs by 3-7 percentage points as compared to the zero-shot setting, and makes them achieve human-like performance in grammatical error identification. Humans, though, remain superior in error correction. The data and code are available from https://github.com/Bangla-iitk/Vaiyakarana."
 }
