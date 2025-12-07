@@ -1,7 +1,7 @@
 ---
 layout: distill
-title: How many tokens does it take to say "नमस्ते"? A Dive into Indic Tokenization
-description: Tokenizers trained on English-dominant data often produce unusually high token counts for Indic languages. This "tokenizer fertility" increases sequence lengths, raises compute costs, and can hurt downstream performance, even when the underlying model is strong. In this post, we examine how fertility varies across major Indic scripts and how it affects language modeling quality, inference efficiency, and instruction-following behavior.
+title: How many tokens does it take to say “नमस्ते”? A Dive into Indic Tokenization
+description: Tokenizers trained on English-dominant data often produce unusually high token counts for Indic languages. This 'tokenizer fertility' increases sequence lengths, raises compute costs, and can hurt downstream performance, even when the underlying model is strong. In this post, we examine how fertility varies across major Indic scripts and how it affects language modeling quality, inference efficiency, and instruction-following behavior.
 date: 2026-04-27
 future: true
 htmlwidgets: true
@@ -48,12 +48,11 @@ _styles: >
   }
 ---
 
-
-## What're tokens? and why do they matter so much to us?
-
 <div style="border: 2px solid #ff9800; background-color: #fff3e0; padding: 15px; border-radius: 5px; margin: 15px 0;">
   <strong>TL;DR.</strong> Some of the important pointers we'll look at, in this post: Are tokenizers failing a billion Indic language speakers? How tokenization bias reinforces linguistic inequality in AI models?
 </div>
+
+## What're tokens? and why do they matter so much to us?
 
 ### Introduction
 
@@ -132,7 +131,7 @@ def visualize_splits(text, model_names):
         tokenizer = AutoTokenizer.from_pretrained(name)
         tokens = tokenizer.tokenize(text)
         
-        split_view = " | ".join([t.replace('Ġ', '').replace(' ', '') for t in tokens])
+        split_view = " \ ".join([t.replace('Ġ', '').replace(' ', '') for t in tokens])
         results.append({
             "Model": name.split("/")[-1],
             "Token Count": len(tokens),
@@ -156,9 +155,9 @@ To understand the source of high fertility, we tokenized the Hindi word for "Sov
 
 | Model                  |   Token Count | Split View                        |
 |:-----------------------|--------------:|:----------------------------------|
-| Phi-3-mini-4k-instruct |            10 | ▁ | स | ं | प | ् | र | भ | ु | त | ा |
-| gemma-2-2b             |             4 | सं | प्र | भु | ता                    |
-| indic-bert             |             3 | ▁सप | रभ | त                      |
+| Phi-3-mini-4k-instruct |            10 | ▁ \ स \ ं | प \ ् \ र \ भ \ ु \ त \ ा |
+| gemma-2-2b             |             4 | सं \ प्र \ भु \ ता                    |
+| indic-bert             |             3 | ▁सप \ रभ \ त                      |
 
 The difference in segmentation strategies is distinct:
 
