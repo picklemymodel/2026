@@ -21,7 +21,8 @@ toc:
   - name: The Indic Problem!
     subsections:
       - name: How high fertility tokenizers make IndicNLP unfair?
-  - name: 
+  - name: The Fertility "Tax"
+  - name: The Downstream Impact
 
 _styles: >
   .fake-img {
@@ -56,7 +57,7 @@ Most modern LLMs use subword tokenizers. These tokenizers learn a vocabulary of 
 
 $$\text{F}(L) = \frac{1}{|D_L|} \sum_{s \in D_L} \frac{\text{Count}_{\text{tokens}}(s)}{\text{Count}_{\text{words}}(s)}$$
 
-_where ${|D_L|}$ refers to the number of sentences in a dataset $D$ of language $L$ and $s$ is a sentence in the dataset._
+_where $|D_L|$ refers to the number of sentences in a dataset $D$ of language $L$ and $s$ is a sentence in the dataset._
 
 Now, More tokens $\leadsto$ longer sequences, $\implies$ less context fits into the model's fixed window. Fragmented words give the model fewer stable patterns to learn, reducing sample efficiency.
 
@@ -98,7 +99,140 @@ Let's look at an example using [OpenAI Tokenizer Playground](https://platform.op
 
 Look at the difference in tokenization. Now, this is for just one sentence (again, this worsens for more complex Languages like Malayalam), imagine a huge dataset with thousands of rows to process for inference – these small differences quickly add up, increasing sequence lengths, affecting model memory and may ultimately impact performance.
 
+---
+
+Let's try some mini experiments.
+
+Visualising the splits:
+
+{% highlight python %}
+from transformers import AutoTokenizer
+import pandas as pd
+
+def visualize_splits(text, model_names):
+    results = []
+    for name in model_names:
+        tokenizer = AutoTokenizer.from_pretrained(name)
+        tokens = tokenizer.tokenize(text)
+        
+        split_view = " | ".join([t.replace('Ġ', '').replace(' ', '') for t in tokens])
+        results.append({
+            "Model": name.split("/")[-1],
+            "Token Count": len(tokens),
+            "Split View": split_view
+        })
+    return pd.DataFrame(results)
+
+text = "संप्रभुता" 
+
+models = [
+    "microsoft/Phi-3-mini-4k-instruct",
+    "google/gemma-2-2b", 
+    "ai4bharat/indic-bert"
+]
+
+df = visualize_splits(text, models)
+print(df.to_markdown(index=False))
+{% endhighlight %}
+
+To understand the source of high fertility, we tokenized the Hindi word for "Sovereignty" (संप्रभुता). This word serves as a stress test due to its use of conjuncts (yuktakshars) and vowel modifiers (matras).
+
+| Model                  |   Token Count | Split View                        |
+|:-----------------------|--------------:|:----------------------------------|
+| Phi-3-mini-4k-instruct |            10 | ▁ | स | ं | प | ् | र | भ | ु | त | ा |
+| gemma-2-2b             |             4 | सं | प्र | भु | ता                    |
+| indic-bert             |             3 | ▁सप | रभ | त                      |
+
+The difference in segmentation strategies is distinct:
+
+Phi-3-mini (10 Tokens): Orthographic Decomposition - The tokenizer fails to recognize Indic subwords, reverting to character-level segmentation. Notably, it splits the conjunct 'प्र' (pra) into three constituent parts: the consonant प, the halant ्, and the consonant r र. The model essentially processes the text as a stream of unicode distincts rather than linguistic units.
+
+Gemma-2 (4 Tokens): Syllabic Preservation - The tokenizer aligns with the structure of the script, preserving full syllables ("Aksharas"). The complex clusters प्र (pra) and भु (bhu) are treated as single tokens.
+
+Coming to AI4Bharat's IndicBERT, the result (token count of 3) might seem great at first glance. However, if you look closely at the split view: सप (Sap), रभ (Rabh), त (Ta), you'll notice that the vowels have disappeared. The tokenizer has achieved this low fertility by performing aggressive normalization.
+
+The Trade-off: The model is extremely efficient, but potentially loses critical semantic information (tense, gender, and root meaning) stored in the vowels. This serves as a crucial lesson: Low fertility is only a virtue if it preserves information.
+
+---
+
+The sensitivity test:
+
+{% highlight python %}
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+import numpy as np
+import pandas as pd
+import gc
+
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.float16,
+    bnb_4bit_use_double_quant=True
+)
+
+def measure_fertility_perplexity(text, model_id):
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        quantization_config=bnb_config,
+        device_map="auto"
+    )
+
+    inputs = tokenizer(text, return_tensors="pt").to(model.device)
+    token_count = inputs.input_ids.shape[1]
+
+    with torch.no_grad():
+        outputs = model(**inputs, labels=inputs.input_ids)
+        perplexity = torch.exp(outputs.loss).item()
+
+    del model
+    gc.collect()
+    torch.cuda.empty_cache()
+
+    return {
+        "Model": model_id.split("/")[-1],
+        "Token Count": token_count,
+        "Perplexity": round(perplexity, 2)
+    }
+
+#eng_text = "Artificial intelligence is transforming the world."
+hindi_text = "कृत्रिम बुद्धिमत्ता दुनिया को बदल रही है।"
+
+models = ["microsoft/Phi-3-mini-4k-instruct", "google/gemma-2-2b"]
+
+results = [measure_fertility_perplexity(hindi_text, m) for m in models]
+
+print(pd.DataFrame(results).to_markdown(index=False))
+{% endhighlight %}
+
+We hypothesized that high fertility would confuse the model, leading to higher perplexity (uncertainty). To test this, we compared Microsoft Phi-3 (English-centric tokenizer) against Google Gemma-2 (Multilingual tokenizer) on a Hindi sample. The results, at first glance, seem to defy logic:
+
+| Model                  |   Token Count |   Raw Perplexity |
+|:-----------------------|--------------:|-----------------:|
+| Phi-3-mini-4k-instruct |            44 |             5.65 |
+| gemma-2-2b             |            14 |            44.73 |
+
+Does this mean the English-centric Phi-3 is 8x "smarter" at Hindi than the multilingual Gemma-2? Absolutely not. This is a classic example of the Tokenization Bias in evaluation metrics.
+
+Perplexity measures the average uncertainty per token.
+
+- Phi-3: Because it fragments the Hindi sentence into 44 tiny bytes, many of its prediction steps are trivial. For example, once it predicts the first byte of a character, the subsequent bytes are deterministic. These "easy wins" lower the average perplexity, masking the fact that the model may not grasp the sentence's semantic meaning.
+
+- Gemma-2: With a richer vocabulary, Gemma represents the sentence in just 14 dense tokens. Each prediction requires choosing the correct word or root from a large set, so each step is harder. 
+
+To compare them fairly, we normalize perplexity by word count, not token count.
+
+$$\text{PPL}_{\text{word}} = \text{PPL}_{\text{token}}^{(\text{Token Count} / \text{Word Count})}$$
+
+Thus, Phi-3 Normalized: $5.65^{(44/7)} \approx 5.65^{6.28} \approx \mathbf{52,800}$
+
+Gemma-2 Normalized: $44.73^{(14/7)} \approx 44.73^{2.0} \approx \mathbf{2,000}$
+
+**The Reality**: When normalized, Gemma-2 is actually orders of magnitude better at predicting the sequence than Phi-3.
+
+---
+
 ## The Fertility "Tax"
 
 ## The Downstream Impact
-
