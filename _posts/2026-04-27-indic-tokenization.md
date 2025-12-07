@@ -38,4 +38,8 @@ _styles: >
 
 ## Introduction
 
+<div style="border: 2px solid #ff9800; background-color: #fff3e0; padding: 15px; border-radius: 5px; margin: 15px 0;">
+  <strong>TL;DR.</strong> Some of the important pointers we'll look at, in this post. Are tokenizers failing a billion Indic language speakers? How tokenization bias reinforces linguistic inequality in AI models?
+</div>
+
 To be updated
