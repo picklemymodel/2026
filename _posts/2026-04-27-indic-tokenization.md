@@ -28,8 +28,10 @@ toc:
   - name: The Indic Problem!
     subsections:
       - name: How high fertility tokenizers make IndicNLP unfair?
-  - name: The Fertility "Tax"
-  - name: The Downstream Impact
+  - name: Quantifying the Fertility Tax: Evidence from Indic-GEC
+    subsections:
+      - name: The Fertility Gap
+      - name: The Downstream Impact
 
 _styles: >
   .fake-img {
@@ -56,7 +58,7 @@ _styles: >
 
 ### Introduction
 
-In recent years, the field of Natural Language Processing (NLP) has been revolutionized by advances in Large Language Models (LLMs).<d-cite key="hagos2024recentadvancesgenerativeai"></d-cite> Trained on large text corpora, these AI models can understand, generate and manipulate language in a human-like way, enabling a wide range of tasks without task-specific supervision. Simply, an LLM takes an input (prompt) and generates the output. They’re like magic, no?
+In recent years, the field of Natural Language Processing (NLP) has been revolutionized by advances in Large Language Models (LLMs). <d-cite key="hagos2024recentadvancesgenerativeai"></d-cite> Trained on large text corpora, these AI models can understand, generate and manipulate language in a human-like way, enabling a wide range of tasks without task-specific supervision. Simply, an LLM takes an input (prompt) and generates the output. They’re like magic, no?
 
 But how do they operate? How do they see strings? LLMs do not operate directly on raw text. Instead, when a text is fed into the model, before interpreting, it’s first segmented into a series of multi-letter chunks called `tokens`. The process of converting text into these units is called tokenization.
 
@@ -155,23 +157,25 @@ To understand the source of high fertility, we tokenized the Hindi word for "Sov
 
 | Model                  |   Token Count | Split View                        |
 |:-----------------------|--------------:|:----------------------------------|
-| Phi-3-mini-4k-instruct |            10 | ▁ \ स \ ं | प \ ् \ र \ भ \ ु \ त \ ा |
+| Phi-3-mini-4k-instruct |            10 | ▁ \ स \ ं \ प \ ् \ र \ भ \ ु \ त \ ा |
 | gemma-2-2b             |             4 | सं \ प्र \ भु \ ता                    |
 | indic-bert             |             3 | ▁सप \ रभ \ त                      |
 
 The difference in segmentation strategies is distinct:
 
-Phi-3-mini (10 Tokens): Orthographic Decomposition - The tokenizer fails to recognize Indic subwords, reverting to character-level segmentation. Notably, it splits the conjunct 'प्र' (pra) into three constituent parts: the consonant प, the halant ्, and the consonant r र. The model essentially processes the text as a stream of unicode distincts rather than linguistic units.
+**Phi-3-mini (10 Tokens)**: _Orthographic Decomposition_ - The tokenizer fails to recognize Indic subwords, reverting to character-level segmentation. Notably, it splits the conjunct 'प्र' (pra) into three constituent parts: the consonant प, the halant ्, and the consonant r र. The model essentially processes the text as a stream of unicode distincts rather than linguistic units.
 
-Gemma-2 (4 Tokens): Syllabic Preservation - The tokenizer aligns with the structure of the script, preserving full syllables ("Aksharas"). The complex clusters प्र (pra) and भु (bhu) are treated as single tokens.
+Takeaway: When we say English-centric models are "inefficient" for Indic languages, we aren't just talking about higher API costs, we are talking about semantic dilution. When a single concept like "sovereignty" is stretched across 10 tokens, the relationship between the subject and the verb (which might be 20 words away) becomes mathematically more distant, making complex reasoning significantly harder.
 
-Coming to AI4Bharat's IndicBERT, the result (token count of 3) might seem great at first glance. However, if you look closely at the split view: सप (Sap), रभ (Rabh), त (Ta), you'll notice that the vowels have disappeared. The tokenizer has achieved this low fertility by performing aggressive normalization.
+**Gemma-2 (4 Tokens)**: Syllabic Preservation - The tokenizer aligns with the structure of the script, preserving full syllables ("Aksharas"). The complex clusters प्र (pra) and भु (bhu) are treated as single tokens.
+
+Coming to AI4Bharat's IndicBERT, the result might seem great at first glance. However, if you look closely at the split view: सप (Sap), रभ (Rabh), त (Ta), you'll notice that the vowels have disappeared. The tokenizer has achieved this low fertility by performing aggressive normalization.
 
 The Trade-off: The model is extremely efficient, but potentially loses critical semantic information (tense, gender, and root meaning) stored in the vowels. This serves as a crucial lesson: Low fertility is only a virtue if it preserves information.
 
 ---
 
-The sensitivity test:
+Does high fertility dilute the model's grasp of context?
 
 {% highlight python %}
 import torch
@@ -222,7 +226,7 @@ results = [measure_fertility_perplexity(hindi_text, m) for m in models]
 print(pd.DataFrame(results).to_markdown(index=False))
 {% endhighlight %}
 
-We hypothesized that high fertility would confuse the model, leading to higher perplexity (uncertainty). To test this, we compared Microsoft Phi-3 (English-centric tokenizer) against Google Gemma-2 (Multilingual tokenizer) on a Hindi sample. The results, at first glance, seem to defy logic:
+We hypothesized that high fertility would confuse the model, leading to higher perplexity (uncertainty). To test this, we compared [Microsoft Phi-3](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct) (English-centric tokenizer) against [Google Gemma-2](https://huggingface.co/google/gemma-2-2b) (Multilingual tokenizer) on a Hindi sample. The results, at first glance, seem to defy logic:
 
 | Model                  |   Token Count |   Raw Perplexity |
 |:-----------------------|--------------:|-----------------:|
@@ -249,6 +253,34 @@ Gemma-2 Normalized: $44.73^{(14/7)} \approx 44.73^{2.0} \approx \mathbf{2,000}$
 
 ---
 
-## The Fertility "Tax"
+## Quantifying the Fertility Tax: Evidence from Indic-GEC
 
-## The Downstream Impact
+To move beyond theoretical efficiency, we evaluated tokenization fertility on a multi-lingual dataset <d-cite key="bhattacharyya-bhattacharya-2025-leveraging"></d-cite> designed for Grammatical Error Correction (GEC). The dataset covers five major Indic languages across two script families:
+
+Indo-Aryan: Hindi (`HI`) - Devanagari, Bengali (`BN`) - Eastern Nagari
+
+Dravidian: Tamil (`TAM`), Malayalam (`MAL`) and Telugu (`TEL`)
+
+The dataset serves as a rigorous stress test, featuring inputs laden with compound errors ranging from surface-level spelling and punctuation to intricate morphological challenges like verb conjugation, tense, aspect, agreement with the subject and gender agreement. Each sample often necessitates multiple, interdependent corrections, requiring the model to resolve deep syntactic inconsistencies while preserving semantic intent.
+
+We employed three SoTA LLMs for inference-only GEC using role-based instruction-following prompts: [GPT-4.1 Mini](https://platform.openai.com/docs/models/gpt-4.1-mini), Gemini-2.5-Flash <d-cite key="comanici2025gemini25pushingfrontier"></d-cite>, and [Llama-4-Maverick-17B](https://ai.meta.com/blog/llama-4-multimodal-intelligence/).
+
+### The Fertility Gap
+
+We calculated the fertility rate ($F_{rel}$) for each model across the test set. The results reveal a significant disparity in how these architectures handle Indic scripts.
+
+{% include figure.liquid path="assets/img/2026-04-27-indic-tokenization/comparison.jpg" class="img-fluid" %}
+
+**Observation**: While all models show increased fertility for Dravidian languages, Llama-4-Maverick exhibits extreme fragmentation. A fertility score of <span style="color:red;">5.88</span> for Tamil implies the model needs to process roughly 2.3X more tokens than Gemini 2.5 Flash to correct a Tamil sentence. This indicates that, despite Llama 4’s strong reasoning abilities, its tokenizer slows down inference, raises costs for Dravidian GEC tasks—likely because it falls back to byte-level encoding more often for these scripts. In contrast, Gemini-2.5-Flash remains significantly more efficient (2.54), likely due to a vocabulary better optimized for non-Latin scripts.
+
+### The Downstream Impact
+
+Does this "tax" matter for quality? We tested this by measuring the models' ability to correct grammatical errors, maximizing the log-probability of the corrected sequence $y$ given the input $x$.
+
+$$\mathcal{L}_{\text{GEC}}(\theta) = - \sum_{i=1}^{N} \sum_{t=1}^{|y^{(i)}|} \log P_{\theta} ( y_t^{(i)} \mid y_{<t}^{(i)}, x^{(i)} )$$
+
+Evaluation on the test set (using $F_0.5$ and BERT-Score) shows a **clear inverse correlation** between fertility and performance!
+
+Gemini-2.5-Flash consistently achieved the lowest fertility and the highest GEC scores across all five languages. Llama-4-Maverick, despite being a capable model, its performance degraded sharply on Tamil and Malayalam -- the exact languages where its tokenization was most inefficient ($>4.5$).
+
+These results suggest that tokenization density is a bottleneck. When a model is forced to predict 6 tokens to express one word, the effective context window shrinks, and the attention mechanism struggles to model long-range dependencies required for grammatical correction. High fertility is not just a cost issue, it is a quality ceiling.
