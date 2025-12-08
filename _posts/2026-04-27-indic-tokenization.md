@@ -283,4 +283,4 @@ Evaluation on the test set (using $F_0.5$ and BERT-Score) shows a **clear invers
 
 Gemini-2.5-Flash consistently achieved the lowest fertility and the highest GEC scores across all five languages. Llama-4-Maverick, despite being a capable model, its performance degraded sharply on Tamil and Malayalam -- the exact languages where its tokenization was most inefficient ($>4.5$).
 
-These results suggest that tokenization density is a bottleneck. When a model is forced to predict 6 tokens to express one word, the effective context window shrinks, and the attention mechanism struggles to model long-range dependencies required for grammatical correction. High fertility is not just a cost issue, it is a quality ceiling.
+These results suggest that _tokenization density is a bottleneck_. When a model is forced to predict 6 tokens to express one word, the effective context window shrinks, and the attention mechanism struggles to model long-range dependencies required for grammatical correction. High fertility is not just a cost issue, it is a quality ceiling.
