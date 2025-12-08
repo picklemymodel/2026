@@ -223,7 +223,7 @@ def measure_fertility_perplexity(text, model_id):
         "Perplexity": round(perplexity, 2)
     }
 
-#eng_text = "Artificial intelligence is transforming the world."
+# eng_text = "Artificial intelligence is transforming the world."
 hindi_text = "कृत्रिम बुद्धिमत्ता दुनिया को बदल रही है।"
 
 models = ["microsoft/Phi-3-mini-4k-instruct", "google/gemma-2-2b"]
