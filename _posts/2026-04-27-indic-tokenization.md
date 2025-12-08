@@ -256,7 +256,7 @@ Thus, Phi-3 Normalized: $5.65^{(44/7)} \approx 5.65^{6.28} \approx \mathbf{52,80
 
 Gemma-2 Normalized: $44.73^{(14/7)} \approx 44.73^{2.0} \approx \mathbf{2,000}$
 
-**The Reality**: When normalized, Gemma-2 is actually orders of magnitude better at predicting the sequence than Phi-3.
+The Reality: When normalized, Gemma-2 is actually orders of magnitude better at predicting the sequence than Phi-3.
 
 ---
 
