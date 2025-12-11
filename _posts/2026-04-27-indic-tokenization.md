@@ -21,18 +21,18 @@ authors:
 bibliography: 2026-04-27-indic-tokenization.bib
 
 toc:
-  - name: What're tokens? and why do they matter so much to us?
+  - name: "What're tokens? and why do they matter so much to us?"
     subsections:
-      - name: Introduction
-      - name: Tokenizer Fertility - A Key Measure of Tokenization Efficiency
+      - name: "Introduction"
+      - name: "Tokenizer Fertility - A Key Measure of Tokenization Efficiency"
   - name: The Indic Problem!
     subsections:
-      - name: How high fertility tokenizers make IndicNLP unfair?
-  - name: Quantifying the Fertility Tax: Evidence from Indic-GEC
+      - name: "How high fertility tokenizers make IndicNLP unfair?"
+  - name: "Quantifying the Fertility Tax: Evidence from Indic-GEC"
     subsections:
-      - name: The Fertility Gap
-      - name: The Downstream Impact
-  - name: Conclusion
+      - name: "The Fertility Gap"
+      - name: "The Downstream Impact"
+  - name: "Conclusion"
 
 _styles: >
   .fake-img {
